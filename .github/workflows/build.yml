@@ -1,8 +1,11 @@
-name: Build and Tests
+name: Build and Tests and Release
 
 on:  
   push:
     branches: [ main ]
+    tags:
+      - 'v*'
+    
   pull_request:
     branches: [ main ]
 
