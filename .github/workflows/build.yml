@@ -2,9 +2,13 @@ name: AfterPush
 
 on:  
   push:
+    branches: [ main ]
     tags:
       - 'v*'
-      
+    
+  pull_request:
+    branches: [ main ]
+
 jobs:  
   build:    
     runs-on: windows-latest
@@ -39,6 +43,7 @@ jobs:
     runs-on: windows-latest
      
     steps:
+      - uses: actions/checkout@v2
       - name: Create Release
         uses: actions/create-release@v1
         id: create_release
