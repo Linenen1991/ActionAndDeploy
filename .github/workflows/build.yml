@@ -1,14 +1,10 @@
-name: Build and Tests
+name: AfterPush
 
 on:  
   push:
-    branches: [ main ]
     tags:
       - 'v*'
-    
-  pull_request:
-    branches: [ main ]
-
+      
 jobs:  
   build:    
     runs-on: windows-latest
@@ -37,3 +33,28 @@ jobs:
         
       - name: Run Tests
         run: vstest.console.exe .\ActionAndDeploy_UnitTest\bin\Debug\ActionAndDeploy_UnitTest.dll
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    run-on: windows-lastest
+     
+    steps:
+      - name: Create Release
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{github.sha}}
+          release_name: ${{github.sha}}
+
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./ActionAndDeploy/bin/Debug/ActionAndDeploy.exe
+          asset_name: ActionAndDeploy.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
